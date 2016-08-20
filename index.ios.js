@@ -271,34 +271,66 @@ class MenuScreen extends Component {
     super(props)
     this.ds = new ListView.DataSource({rowHasChanged: (r1, r2) => r1 !== r2});
   }
+  touchable(g) {
+    if ("gameInfo" in g && "title" in g.gameInfo ) {
+
+        t = g.gameInfo.title
+      }
+    else {
+        t = "Title missing"
+      }
+    return (
+      <TouchableHighlight onPress={()=>this.props.par._loadGame(g)}>
+        <Text style={styles.menuItem}>
+          {t}
+        </Text>
+      </TouchableHighlight>
+    )
+  }
   render() {
+    dataSource = this.ds.cloneWithRows(this.props.games)
     return(
       <View style={styles.container}>
         <Text style={styles.gameOverText}>
         AVE
         </Text>
         <View style={styles.gameOverMenu}>
-          <TouchableHighlight id="tea" onPress={()=>this.props.par._loadGame('tea')}>
-            <Text style={styles.menuItem}>
-              Wonderful tea journey
-            </Text>
-          </TouchableHighlight>
+        <ListView
+          dataSource={dataSource}
+          renderRow={(rowData) => this.touchable(JSON.parse(rowData[1]))}
+        />
         </View>
       </View>
     )
   }
 }
+/*<TouchableHighlight id="tea" onPress={()=>this.props.par._loadGame('@AVEgameData:tea')}>
+  <Text style={styles.menuItem}>
+    Wonderful tea journey
+  </Text>
+</TouchableHighlight>*/
 
 export default class AVEmobile extends Component {
   constructor() {
     super()
     this._onPressButton = this._onPressButton.bind(this);
     this._start = this._start.bind(this);
-    var gameData = require('./tea.json')
-    var gameDataStr = JSON.stringify(gameData)
-    AsyncStorage.setItem(storageKey + 'tea',gameDataStr).then().done()
+    this._prepareData();
     this._start()
-    this.state = {displayType: "menu", roomId: "start", inventory: [], realInv: [" "], gameList: [" "]}
+    this.state = {displayType: "none", roomId: "start", inventory: [], realInv: [" "], gameList: [[" ",{}]]}
+  }
+  async _prepareData() {
+    AsyncStorage.getAllKeys((err,keys)=>this._storeIfNeeded)
+  }
+  async _storeIfNeeded(err,keys) {
+    if (keys.length === 0) {
+      var gameDataJSON = require('./tea.json')
+      var gameDataStr = JSON.stringify(gameDataJSON)
+      AsyncStorage.setItem(storageKey + 'tea',gameDataStr).then().done()
+      var gameDataJSON = require('./butterfield.json')
+      var gameDataStr = JSON.stringify(gameDataJSON)
+      AsyncStorage.setItem(storageKey + 'butterfield',gameDataStr).then().done()
+    }
   }
   _onPressButton(option) {
     var inv = JSON.parse(JSON.stringify(this.state.inventory))
@@ -320,20 +352,15 @@ export default class AVEmobile extends Component {
     this._start()
     this.setState({displayType: "menu"})
   }
-  async _menu(keyList) {
+  _menu(err, keyList) {
     this.setState({displayType: "menu", roomId: "start", inventory: [], realInv: [" "], gameList: keyList})
   }
   async _start() {
     AsyncStorage.getAllKeys((err,keys)=> {AsyncStorage.multiGet(keys, this._menu.bind(this))})
-    /*this._loadGame('tea') /* remove this when done*/
   }
-  async _loadGame(gameKey) {
-    try {
-      await AsyncStorage.getItem(storageKey + gameKey).then((value) => { this.setState({gameData:JSON.parse(value)}); this._showTitle()}).done()
-    }
-    catch (error) {
-      console.log("Error getting data")
-    }
+  _loadGame(game) {
+    this.setState({gameData: game})
+    this._showTitle()
   }
   _showTitle() {
     this.setState({displayType: "title"})
@@ -347,8 +374,12 @@ export default class AVEmobile extends Component {
     return (inv.length > 0 ? inv : [" "])
   }
   render() {
-    if ( this.state.displayType === "menu" ) {
-      r = <MenuScreen par={this}/>
+    console.log(this.state.gameList)
+    if (this.state.displayType === "none" ) {
+      r = <View style={styles.container} />
+    }
+    else if ( this.state.displayType === "menu" ) {
+      r = <MenuScreen games={this.state.gameList} par={this}/>
     }
     else if (this.state.displayType === "title") {
       gameInfo = this.state.gameData.gameInfo

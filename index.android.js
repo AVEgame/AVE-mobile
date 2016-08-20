@@ -347,6 +347,7 @@ export default class AVEmobile extends Component {
     return (inv.length > 0 ? inv : [" "])
   }
   render() {
+    console.log(this.state.gameList)
     if ( this.state.displayType === "menu" ) {
       r = <MenuScreen par={this}/>
     }
