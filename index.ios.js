@@ -273,7 +273,6 @@ class MenuScreen extends Component {
   }
   touchable(g) {
     if ("gameInfo" in g && "title" in g.gameInfo ) {
-
         t = g.gameInfo.title
       }
     else {
@@ -316,20 +315,21 @@ export default class AVEmobile extends Component {
     this._onPressButton = this._onPressButton.bind(this);
     this._start = this._start.bind(this);
     this._prepareData();
-    this._start()
     this.state = {displayType: "none", roomId: "start", inventory: [], realInv: [" "], gameList: [[" ",{}]]}
   }
   async _prepareData() {
-    AsyncStorage.getAllKeys((err,keys)=>this._storeIfNeeded)
+    AsyncStorage.getAllKeys((err,keys)=>{this._storeIfNeeded(err, keys)})
   }
   async _storeIfNeeded(err,keys) {
     if (keys.length === 0) {
-      var gameDataJSON = require('./tea.json')
-      var gameDataStr = JSON.stringify(gameDataJSON)
-      AsyncStorage.setItem(storageKey + 'tea',gameDataStr).then().done()
-      var gameDataJSON = require('./butterfield.json')
-      var gameDataStr = JSON.stringify(gameDataJSON)
-      AsyncStorage.setItem(storageKey + 'butterfield',gameDataStr).then().done()
+      var teaDataJSON = require('./tea.json')
+      var teaDataStr = JSON.stringify(teaDataJSON)
+      var butterDataJSON = require('./butterfield.json')
+      var butterDataStr = JSON.stringify(butterDataJSON)
+      AsyncStorage.multiSet([[storageKey + 'butterfield',butterDataStr],[storageKey + "tea", teaDataStr]], (err)=>{this._start()})
+    }
+    else {
+      this._start()
     }
   }
   _onPressButton(option) {
@@ -374,7 +374,6 @@ export default class AVEmobile extends Component {
     return (inv.length > 0 ? inv : [" "])
   }
   render() {
-    console.log(this.state.gameList)
     if (this.state.displayType === "none" ) {
       r = <View style={styles.container} />
     }
