@@ -140,13 +140,13 @@ class RoomView extends Component {
       <View style={styles.container} onLayout={event=>this.forceUpdate()}>
         <View style={[styles.roomInvCont,{height:window.height - 20 - 115 - 5}]}>
           <View style={styles.roomDescriptionCont}>
-            <ScrollView>
+            <ScrollView showsVerticalScrollIndicator={true}>
             <Text style={styles.roomDescription}>{this.props.roomDesc}</Text>
             </ScrollView>
           </View>
           <View style={styles.invContainer}>
             <Text style={styles.roomDescription}>INVENTORY</Text>
-            <ScrollView>
+            <ScrollView showsVerticalScrollIndicator={true}>
             <ListView
               dataSource={dataSourceInv}
               renderRow={(rowData) => <Text style={styles.roomDescription}>{rowData}</Text>}
@@ -154,10 +154,11 @@ class RoomView extends Component {
             </ScrollView>
           </View>
         </View>
-        <ScrollView style={{flex:0, height: 115, backgroundColor: 'yellow'}}>
+        <ScrollView showsVerticalScrollIndicator={true} style={{flex:0, height: 115, backgroundColor: 'yellow'}}>
           <ListView
            dataSource={dataSourceOpt}
            renderRow={this._renderRow.bind(this)}
+           renderSeparator={(sectionId, rowId) => <View key={rowId} style={[styles.separator,{width: Dimensions.get('window').width - 20, marginLeft: 10}]}/>}
           />
         </ScrollView>
       </View>
@@ -234,6 +235,7 @@ class GameTitle extends Component {
             Play game
           </Text>
         </TouchableHighlight>
+        <View style={[styles.separator,{width: Dimensions.get('window').width - 20, marginLeft: 10}]}/>
         <TouchableHighlight onPress={()=>this.props.par._startAgain()}>
           <Text style={styles.menuItem}>
             Main menu
@@ -266,6 +268,7 @@ class GameOver extends Component {
               Play again
             </Text>
           </TouchableHighlight>
+          <View style={[styles.separator,{width: Dimensions.get('window').width - 20, marginLeft: 10}]}/>
           <TouchableHighlight onPress={()=>this.reload(false)}>
             <Text style={styles.menuItem}>
               Play a different game
@@ -340,10 +343,11 @@ class MenuScreen extends Component {
         </Text>
         <View style={{height: 100}} />
       </View>
-        <ScrollView style={{flex: 0, height: 100, backgroundColor: 'yellow'}}>
+        <ScrollView showsVerticalScrollIndicator={true} style={{flex: 0, height: 100, backgroundColor: 'yellow'}}>
         <ListView
           dataSource={dataSource}
           renderRow={(rowData) => this.touchable(JSON.parse(rowData[1]))}
+          renderSeparator={(sectionId, rowId) => <View key={rowId} style={[styles.separator,{width: Dimensions.get('window').width - 20, marginLeft: 10}]}/>}
         />
         </ScrollView>
       </View>
@@ -486,8 +490,8 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     paddingTop: 5,
     paddingBottom: 5,
-    paddingLeft: 5,
-    paddingRight: 5
+    paddingLeft: 10,
+    paddingRight: 10
   },
   container: {
     flex: 1,
@@ -496,7 +500,8 @@ const styles = StyleSheet.create({
     backgroundColor: bgColor,
   },
   gameOverMenu: {
-    flex: 0
+    flex: 0,
+    backgroundColor: 'yellow'
   },
   gameOver: {
     flex: 1,
@@ -554,6 +559,12 @@ const styles = StyleSheet.create({
     flex:0,
     height: 115,
     backgroundColor: 'yellow'
+  },
+  separator: {
+    flex: 1,
+    height: 1,
+    backgroundColor: bgColor,
+    opacity: 0.3
   }
 });
 
