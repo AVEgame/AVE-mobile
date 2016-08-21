@@ -13,8 +13,12 @@ import {
   TouchableHighlight,
   AsyncStorage,
   ListView,
-  Platform
+  Platform,
+  Image,
+  Dimensions
 } from 'react-native';
+
+bgColor = "#2f0923"
 
 storageKey = "@AVEgameData:"
 
@@ -288,11 +292,18 @@ class MenuScreen extends Component {
   }
   render() {
     dataSource = this.ds.cloneWithRows(this.props.games)
+    var {height, width_win} = Dimensions.get('window')
+    if ( width_win > height ) {
+      banner = require('./bannerLandscape.png')
+    }
+    else {
+      banner = require('./bannerPortrait.png')
+    }
     return(
       <View style={styles.container}>
-        <Text style={styles.gameOverText}>
-        AVE
-        </Text>
+      <View style={{flexDirection: 'row', flex: 1, width: width_win}}>
+        <Image source={banner} style={{flex: 1, resizeMode: 'contain', width: width_win}}/>
+      </View>
         <View style={styles.gameOverMenu}>
         <ListView
           dataSource={dataSource}
@@ -414,11 +425,14 @@ const styles = StyleSheet.create({
   },
   roomDescriptionCont: {
     flex: 3,
-    borderRightWidth: 5
+    paddingRight: 5,
+    paddingLeft: 5
   },
   invContainer: {
     flex: 2,
-    backgroundColor: "blue"
+    backgroundColor: "blue",
+    paddingLeft: 3,
+    paddingRight: 3
   },
   roomInvCont: {
     flex: 0,
@@ -431,7 +445,7 @@ const styles = StyleSheet.create({
   menuItem: {
     fontFamily: monospace,
     backgroundColor: 'yellow',
-    color: 'blue',
+    color: 'black',
     fontSize: 20,
     fontWeight: 'bold',
     paddingTop: 5,
@@ -443,7 +457,7 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'space-between',
     paddingTop: 20,
-    backgroundColor: '#000000',
+    backgroundColor: bgColor,
   },
   gameOverMenu: {
     flex: 0
