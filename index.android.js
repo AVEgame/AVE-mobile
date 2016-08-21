@@ -21,6 +21,9 @@ import {
 
 bgColor = "#2f0923"
 
+scrollHeightPort = 150
+scrollHeightLand = 130
+
 storageKey = "@AVEgameData:"
 
 monospace = (Platform.OS === "ios") ? "Courier New" : "monospace"
@@ -134,19 +137,19 @@ class RoomView extends Component {
   render() {
     dataSourceOpt = this.ds_opt.cloneWithRows(this.props.opt)
     dataSourceInv = this.ds_inv.cloneWithRows(this.props.inv)
-    var scrollHeight = ((this.props.opt.length - 1) * 33) - 10
     var window = Dimensions.get('window')
+    var scrollHeight = (window.width > window.height) ? scrollHeightLand : scrollHeightPort
     return(
       <View style={styles.container} onLayout={event=>this.forceUpdate()}>
-        <View style={[styles.roomInvCont,{height:window.height - 20 - 115 - 5}]}>
+        <View style={[styles.roomInvCont,{height:window.height - 20 - scrollHeight - 5}]}>
           <View style={styles.roomDescriptionCont}>
-            <ScrollView showsVerticalScrollIndicator={true}>
+            <ScrollView onLayout={event=>this.forceUpdate()} showsVerticalScrollIndicator={true}>
             <Text style={styles.roomDescription}>{this.props.roomDesc}</Text>
             </ScrollView>
           </View>
           <View style={styles.invContainer}>
             <Text style={styles.roomDescription}>INVENTORY</Text>
-            <ScrollView showsVerticalScrollIndicator={true}>
+            <ScrollView onLayout={event=>this.forceUpdate()} showsVerticalScrollIndicator={true}>
             <ListView
               dataSource={dataSourceInv}
               renderRow={(rowData) => <Text style={styles.roomDescription}>{rowData}</Text>}
@@ -154,7 +157,7 @@ class RoomView extends Component {
             </ScrollView>
           </View>
         </View>
-        <ScrollView showsVerticalScrollIndicator={true} style={{flex:0, height: 115, backgroundColor: 'yellow'}}>
+        <ScrollView onLayout={event=>this.forceUpdate()} showsVerticalScrollIndicator={true} style={{flex:0, height: scrollHeight, backgroundColor: 'yellow'}}>
           <ListView
            dataSource={dataSourceOpt}
            renderRow={this._renderRow.bind(this)}
@@ -211,7 +214,7 @@ class GameTitle extends Component {
   }
   render() {
     return(
-    <View style={styles.container}>
+    <View onLayout={event=>this.forceUpdate()} style={styles.container}>
     <View style={styles.titleContParent}>
       <View style={styles.titleCont}>
         <Text style={styles.gameTitle}>
@@ -343,7 +346,7 @@ class MenuScreen extends Component {
         </Text>
         <View style={{height: 100}} />
       </View>
-        <ScrollView showsVerticalScrollIndicator={true} style={{flex: 0, height: 100, backgroundColor: 'yellow'}}>
+        <ScrollView onLayout={event=>this.forceUpdate()} showsVerticalScrollIndicator={true} style={{flex: 0, height: 100, backgroundColor: 'yellow'}}>
         <ListView
           dataSource={dataSource}
           renderRow={(rowData) => this.touchable(JSON.parse(rowData[1]))}
@@ -486,7 +489,7 @@ const styles = StyleSheet.create({
     fontFamily: monospace,
     backgroundColor: 'yellow',
     color: 'black',
-    fontSize: 20,
+    fontSize: 16,
     fontWeight: 'bold',
     paddingTop: 5,
     paddingBottom: 5,
