@@ -270,10 +270,33 @@ class GameOver extends Component {
   }
 }
 
+class BannerImage extends Component {
+  constructor(props) {
+    super(props)
+    var window = Dimensions.get('window')
+    var landscape = window.width>window.height
+    this.state = {land: landscape}
+  }
+  update() {
+    var window = Dimensions.get('window')
+    var landscape = window.width>window.height
+    this.setState({land: landscape})
+  }
+  render() {
+    var banner = (this.state.land) ? 'bannerLandscape.png' : 'bannerPortrait.png';
+    return (
+      <View style={{flex: 1}}>
+        <Image source={{uri:banner}} resizeMode='contain' style={{flex: 1}} onLayout={event=>this.update()} />
+      </View>
+    )
+  }
+}
+
 class MenuScreen extends Component {
   constructor(props) {
     super(props)
     this.ds = new ListView.DataSource({rowHasChanged: (r1, r2) => r1 !== r2});
+    banner = <BannerImage/>
   }
   touchable(g) {
     if ("gameInfo" in g && "title" in g.gameInfo ) {
@@ -292,17 +315,23 @@ class MenuScreen extends Component {
   }
   render() {
     dataSource = this.ds.cloneWithRows(this.props.games)
-    var {height, width_win} = Dimensions.get('window')
-    if ( width_win > height ) {
-      banner = require('./bannerLandscape.png')
-    }
-    else {
-      banner = require('./bannerPortrait.png')
-    }
     return(
       <View style={styles.container}>
-      <View style={{flexDirection: 'row', flex: 1, width: width_win}}>
-        <Image source={banner} style={{flex: 1, resizeMode: 'contain', width: width_win}}/>
+      <View style={{flex: 1}}>
+        {banner}
+        <Text style={styles.roomDescription}>
+        AVE: Adventure! Villainy! Excitement!
+        </Text>
+        <Text style={[styles.roomDescription, {textAlign:'right'}]}>
+          A text-based game engine written by Gin Grasso & Matthew Scroggs.
+        </Text>
+        <Text style={[styles.roomDescription, {textAlign:'right'}]}>
+          AVEgame.co.uk
+        </Text>
+        <Text style={[styles.roomDescription, {textAlign:'right'}]}>
+          github.com/AVEgame/AVE
+        </Text>
+        <View style={{height: 100}} />
       </View>
         <View style={styles.gameOverMenu}>
         <ListView
@@ -314,6 +343,7 @@ class MenuScreen extends Component {
     )
   }
 }
+
 /*<TouchableHighlight id="tea" onPress={()=>this.props.par._loadGame('@AVEgameData:tea')}>
   <Text style={styles.menuItem}>
     Wonderful tea journey
