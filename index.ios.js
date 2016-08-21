@@ -290,7 +290,7 @@ class BannerImage extends Component {
     this.setState({land: landscape})
   }
   render() {
-    var banner = (this.state.land) ? 'bannerLandscape.png' : 'bannerPortrait.png';
+    var banner = (this.state.land) ? 'bannerlandscape.png' : 'bannerportrait.png';
     return (
       <View style={{flex: 1, minHeight: 100}}>
         <Image source={{uri:banner}} resizeMode='contain' style={{flex: 1}} onLayout={event=>this.update()} />
