@@ -15,7 +15,8 @@ import {
   ListView,
   Platform,
   Image,
-  Dimensions
+  Dimensions,
+  ScrollView
 } from 'react-native';
 
 bgColor = "#2f0923"
@@ -133,26 +134,32 @@ class RoomView extends Component {
   render() {
     dataSourceOpt = this.ds_opt.cloneWithRows(this.props.opt)
     dataSourceInv = this.ds_inv.cloneWithRows(this.props.inv)
+    var scrollHeight = ((this.props.opt.length - 1) * 33) - 10
+    var window = Dimensions.get('window')
     return(
-      <View style={styles.container}>
-        <View style={styles.roomInvCont}>
+      <View style={styles.container} onLayout={event=>this.forceUpdate()}>
+        <View style={[styles.roomInvCont,{height:window.height - 20 - 115 - 5}]}>
           <View style={styles.roomDescriptionCont}>
+            <ScrollView>
             <Text style={styles.roomDescription}>{this.props.roomDesc}</Text>
+            </ScrollView>
           </View>
           <View style={styles.invContainer}>
             <Text style={styles.roomDescription}>INVENTORY</Text>
+            <ScrollView>
             <ListView
               dataSource={dataSourceInv}
               renderRow={(rowData) => <Text style={styles.roomDescription}>{rowData}</Text>}
             />
+            </ScrollView>
           </View>
         </View>
-        <View>
+        <ScrollView style={{flex:0, height: 115, backgroundColor: 'yellow'}}>
           <ListView
            dataSource={dataSourceOpt}
            renderRow={this._renderRow.bind(this)}
           />
-        </View>
+        </ScrollView>
       </View>
   )
   }
@@ -285,7 +292,7 @@ class BannerImage extends Component {
   render() {
     var banner = (this.state.land) ? 'bannerLandscape.png' : 'bannerPortrait.png';
     return (
-      <View style={{flex: 1}}>
+      <View style={{flex: 1, minHeight: 100}}>
         <Image source={{uri:banner}} resizeMode='contain' style={{flex: 1}} onLayout={event=>this.update()} />
       </View>
     )
@@ -317,7 +324,7 @@ class MenuScreen extends Component {
     dataSource = this.ds.cloneWithRows(this.props.games)
     return(
       <View style={styles.container}>
-      <View style={{flex: 1}}>
+      <View style={{flex: 1, paddingLeft: 5, paddingRight: 5}}>
         {banner}
         <Text style={styles.roomDescription}>
         AVE: Adventure! Villainy! Excitement!
@@ -333,12 +340,12 @@ class MenuScreen extends Component {
         </Text>
         <View style={{height: 100}} />
       </View>
-        <View style={styles.gameOverMenu}>
+        <ScrollView style={{flex: 0, height: 100, backgroundColor: 'yellow'}}>
         <ListView
           dataSource={dataSource}
           renderRow={(rowData) => this.touchable(JSON.parse(rowData[1]))}
         />
-        </View>
+        </ScrollView>
       </View>
     )
   }
@@ -466,7 +473,6 @@ const styles = StyleSheet.create({
   },
   roomInvCont: {
     flex: 0,
-    minHeight: 200,
     flexDirection: 'row'
   },
   choices: {
@@ -543,6 +549,11 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingRight: 10,
     paddingLeft: 10
+  },
+  roomScroll: {
+    flex:0,
+    height: 115,
+    backgroundColor: 'yellow'
   }
 });
 
