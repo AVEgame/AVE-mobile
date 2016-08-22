@@ -234,7 +234,7 @@ class GameTitle extends Component {
           {this.props.title}
         </Text>
       </View>
-      <View style={styles.titleCont}>
+      <View style={[styles.titleCont,{paddingBottom:30}]}>
         <Text style={styles.gameAuthors}>
           {"By: " + this.props.authors}
         </Text>
@@ -650,7 +650,8 @@ const styles = StyleSheet.create({
   titleCont: {
     flex: 1,
     paddingRight: 10,
-    paddingLeft: 10
+    paddingLeft: 10,
+    minHeight: 30
   },
   roomScroll: {
     flex:0,
