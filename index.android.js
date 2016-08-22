@@ -131,25 +131,27 @@ class RoomView extends Component {
     this.ds_opt = new ListView.DataSource({rowHasChanged: (r1, r2) => r1 !== r2});
     this.state = {
       dataSourceInv: this.ds_inv.cloneWithRows(this.props.inv),
-      dataSourceOpt: this.ds_opt.cloneWithRows(this.props.opt)
+      dataSourceOpt: this.ds_opt.cloneWithRows(this.props.opt),
+      layout: {}
     };
   }
   render() {
     dataSourceOpt = this.ds_opt.cloneWithRows(this.props.opt)
     dataSourceInv = this.ds_inv.cloneWithRows(this.props.inv)
-    var window = Dimensions.get('window')
+    /*var window = Dimensions.get('window')*/
+    var window = this.state.layout
     var scrollHeight = (window.width > window.height) ? scrollHeightLand : scrollHeightPort
     return(
-      <View style={styles.container} onLayout={event=>this.forceUpdate()}>
+      <View style={styles.container} onLayout={event => this.appLayout(event.nativeEvent.layout)}>
         <View style={[styles.roomInvCont,{height:window.height - 20 - scrollHeight - 5}]}>
           <View style={styles.roomDescriptionCont}>
-            <ScrollView onLayout={event=>this.forceUpdate()} showsVerticalScrollIndicator={true}>
+            <ScrollView showsVerticalScrollIndicator={true}>
             <Text style={styles.roomDescription}>{this.props.roomDesc}</Text>
             </ScrollView>
           </View>
           <View style={styles.invContainer}>
             <Text style={styles.roomDescription}>INVENTORY</Text>
-            <ScrollView onLayout={event=>this.forceUpdate()} showsVerticalScrollIndicator={true}>
+            <ScrollView showsVerticalScrollIndicator={true}>
             <ListView
               dataSource={dataSourceInv}
               renderRow={(rowData) => <Text style={styles.roomDescription}>{rowData}</Text>}
@@ -157,15 +159,18 @@ class RoomView extends Component {
             </ScrollView>
           </View>
         </View>
-        <ScrollView onLayout={event=>this.forceUpdate()} showsVerticalScrollIndicator={true} style={{flex:0, height: scrollHeight, backgroundColor: 'yellow'}}>
+        <ScrollView showsVerticalScrollIndicator={true} style={{flex:0, height: scrollHeight, backgroundColor: 'yellow'}} ref={(ref) => {this.myScroll = ref;}}>
           <ListView
            dataSource={dataSourceOpt}
            renderRow={this._renderRow.bind(this)}
-           renderSeparator={(sectionId, rowId) => <View key={rowId} style={[styles.separator,{width: Dimensions.get('window').width - 20, marginLeft: 10}]}/>}
+           renderSeparator={(sectionId, rowId) => <View key={rowId} style={[styles.separator,{width: window.width - 20, marginLeft: 10}]}/>}
           />
         </ScrollView>
       </View>
   )
+  }
+  appLayout(orient) {
+    this.setState({layout: orient})
   }
   _renderRow(data, sectionId, rowId) {
     /* return (<Text style={styles.menuItem}>{data[0]}</Text>) */
@@ -211,10 +216,12 @@ class HighlightItem extends Component {
 class GameTitle extends Component {
   constructor(props) {
     super(props)
+    this.state = {layout: {}}
   }
   render() {
+    var window = this.state.layout
     return(
-    <View onLayout={event=>this.forceUpdate()} style={styles.container}>
+    <View onLayout={event => this.appLayout(event.nativeEvent.layout)} style={styles.container}>
     <View style={styles.titleContParent}>
       <View style={styles.titleCont}>
         <Text style={styles.gameTitle}>
@@ -238,7 +245,7 @@ class GameTitle extends Component {
             Play game
           </Text>
         </TouchableHighlight>
-        <View style={[styles.separator,{width: Dimensions.get('window').width - 20, marginLeft: 10}]}/>
+        <View style={[styles.separator,{width: window.width - 20, marginLeft: 10}]}/>
         <TouchableHighlight onPress={()=>this.props.par._startAgain()}>
           <Text style={styles.menuItem}>
             Main menu
@@ -248,18 +255,23 @@ class GameTitle extends Component {
     </View>
   )
   }
+  appLayout(orient) {
+    this.setState({layout: orient})
+  }
 }
 
 class GameOver extends Component {
   constructor(props) {
     super(props)
+    this.state = {layout: {}}
   }
   reload(again) {
     this.props.par._onPressGameOver(again)
   }
   render() {
+    var window = this.state.layout
     return(
-      <View style={styles.container}>
+      <View style={styles.container} onLayout={event => this.appLayout(event.nativeEvent.layout)}>
         <View style={styles.gameOver}>
           <View style={styles.gameOverTextCont}>
             <Text style={styles.gameOverText}>{this.props.text}</Text>
@@ -271,7 +283,7 @@ class GameOver extends Component {
               Play again
             </Text>
           </TouchableHighlight>
-          <View style={[styles.separator,{width: Dimensions.get('window').width - 20, marginLeft: 10}]}/>
+          <View style={[styles.separator,{width: window.width - 20, marginLeft: 10}]}/>
           <TouchableHighlight onPress={()=>this.reload(false)}>
             <Text style={styles.menuItem}>
               Play a different game
@@ -281,25 +293,40 @@ class GameOver extends Component {
       </View>
     )
   }
+  appLayout(orient) {
+    this.setState({layout: orient})
+  }
 }
 
 class BannerImage extends Component {
   constructor(props) {
     super(props)
-    var window = Dimensions.get('window')
+    var window = this.props.par.state.layout
     var landscape = window.width>window.height
     this.state = {land: landscape}
   }
-  update() {
-    var window = Dimensions.get('window')
+  appLayout(orient) {
+    var window = this.props.lay
     var landscape = window.width>window.height
-    this.setState({land: landscape})
+    console.log("Layout")
+    console.log(landscape)
+    this.setState({land: landscape, imgHeight: orient.height})
   }
   render() {
-    var banner = (this.state.land) ? 'bannerlandscape.png' : 'bannerportrait.png';
+    console.log("Render")
+    console.log(this.state.land)
+    if (Platform.OS === "ios") {
+      var bannerloc = (this.props.par.state.land) ? 'bannerlandscape.png' : 'bannerportrait.png';
+      var banner = {uri: bannerloc}
+      var imgStyle = {flex: 1}
+    }
+    else {
+      var banner = (this.props.par.state.land) ? require('./bannerlandscape.png') : require('./bannerportrait.png')
+      var imgStyle = {flex: 1, height: this.state.imgHeight, width: window.width}
+    }
     return (
-      <View style={{flex: 1, minHeight: 100}}>
-        <Image source={{uri:banner}} resizeMode='contain' style={{flex: 1}} onLayout={event=>this.update()} />
+      <View style={{flex: 1, width: window.width, minHeight: (this.props.par.state.layout.height > 300) ? 100 : 70, flexDirection: 'row', justifyContent: 'flex-start'}} onLayout={event => this.appLayout(event.nativeEvent.layout)}>
+        <Image source={banner} resizeMode='contain' style={imgStyle} />
       </View>
     )
   }
@@ -309,7 +336,8 @@ class MenuScreen extends Component {
   constructor(props) {
     super(props)
     this.ds = new ListView.DataSource({rowHasChanged: (r1, r2) => r1 !== r2});
-    banner = <BannerImage/>
+    this.banner = <BannerImage par={this}/>
+    this.state = {layout: {}, land: true}
   }
   touchable(g) {
     if ("gameInfo" in g && "title" in g.gameInfo ) {
@@ -328,10 +356,11 @@ class MenuScreen extends Component {
   }
   render() {
     dataSource = this.ds.cloneWithRows(this.props.games)
+    var window = this.state.layout
     return(
-      <View style={styles.container}>
-      <View style={{flex: 1, paddingLeft: 5, paddingRight: 5}}>
-        {banner}
+      <View style={styles.container} onLayout={event => this.appLayout(event.nativeEvent.layout)}>
+      <View style={{flex: 1, paddingLeft: 5, paddingRight: 5}} >
+        <BannerImage par={this} lay={this.state.layout}/>
         <Text style={styles.roomDescription}>
         AVE: Adventure! Villainy! Excitement!
         </Text>
@@ -346,15 +375,18 @@ class MenuScreen extends Component {
         </Text>
         <View style={{height: 100}} />
       </View>
-        <ScrollView onLayout={event=>this.forceUpdate()} showsVerticalScrollIndicator={true} style={{flex: 0, height: 100, backgroundColor: 'yellow'}}>
+        <ScrollView showsVerticalScrollIndicator={true} style={{flex: 0, height: 100, backgroundColor: 'yellow'}}>
         <ListView
           dataSource={dataSource}
           renderRow={(rowData) => this.touchable(JSON.parse(rowData[1]))}
-          renderSeparator={(sectionId, rowId) => <View key={rowId} style={[styles.separator,{width: Dimensions.get('window').width - 20, marginLeft: 10}]}/>}
+          renderSeparator={(sectionId, rowId) => <View key={rowId} style={[styles.separator,{width: window.width - 20, marginLeft: 10}]}/>}
         />
         </ScrollView>
       </View>
     )
+  }
+  appLayout(orient) {
+    this.setState({layout: orient, land: orient.width > orient.height })
   }
 }
 
