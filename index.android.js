@@ -16,10 +16,12 @@ import {
   Platform,
   Image,
   Dimensions,
-  ScrollView
+  ScrollView,
+  StatusBar
 } from 'react-native';
 
 bgColor = "#2f0923"
+termBlue = "#264a85"
 
 scrollHeightPort = 150
 scrollHeightLand = 130
@@ -143,13 +145,15 @@ class RoomView extends Component {
     var scrollHeight = (window.width > window.height) ? scrollHeightLand : scrollHeightPort
     return(
       <View style={styles.container} onLayout={event => this.appLayout(event.nativeEvent.layout)}>
+      <StatusBar hidden={true} />
+      <TopBar  par={this.props.par} />
         <View style={[styles.roomInvCont,{height:window.height - 20 - scrollHeight - 5}]}>
           <View style={styles.roomDescriptionCont}>
             <ScrollView showsVerticalScrollIndicator={true}>
             <Text style={styles.roomDescription}>{this.props.roomDesc}</Text>
             </ScrollView>
           </View>
-          <View style={styles.invContainer}>
+          <View style={[styles.invContainer,{maxHeight: 300}]}>
             <Text style={styles.roomDescription}>INVENTORY</Text>
             <ScrollView showsVerticalScrollIndicator={true}>
             <ListView
@@ -222,6 +226,8 @@ class GameTitle extends Component {
     var window = this.state.layout
     return(
     <View onLayout={event => this.appLayout(event.nativeEvent.layout)} style={styles.container}>
+    <TopBar par={this.props.par} />
+    <StatusBar hidden={true} />
     <View style={styles.titleContParent}>
       <View style={styles.titleCont}>
         <Text style={styles.gameTitle}>
@@ -272,6 +278,8 @@ class GameOver extends Component {
     var window = this.state.layout
     return(
       <View style={styles.container} onLayout={event => this.appLayout(event.nativeEvent.layout)}>
+      <TopBar par={this.props.par} />
+      <StatusBar hidden={true} />
         <View style={styles.gameOver}>
           <View style={styles.gameOverTextCont}>
             <Text style={styles.gameOverText}>{this.props.text}</Text>
@@ -316,17 +324,55 @@ class BannerImage extends Component {
     console.log("Render")
     console.log(this.state.land)
     if (Platform.OS === "ios") {
-      var bannerloc = (this.props.par.state.land) ? 'bannerlandscape.png' : 'bannerportrait.png';
+      if (this.props.par.state.layout.height == null ) {
+        var bannerloc = 'a'
+      }
+      else {
+        var bannerloc = (this.props.par.state.land) ? 'bannerlandscape.png' : 'bannerportrait.png';
+      }
       var banner = {uri: bannerloc}
       var imgStyle = {flex: 1}
     }
     else {
-      var banner = (this.props.par.state.land) ? require('./bannerlandscape.png') : require('./bannerportrait.png')
+      if (this.props.par.state.layout.height == null ) {
+        var banner = {uri: 'a'}
+      }
+      else {
+        var banner = (this.props.par.state.land || this.props.par.state.layout.height < 470 ) ? require('./bannerlandscape.png') : require('./bannerportrait.png')
+      }
       var imgStyle = {flex: 1, height: this.state.imgHeight, width: window.width}
     }
     return (
       <View style={{flex: 1, width: window.width, minHeight: (this.props.par.state.layout.height > 300) ? 100 : 70, flexDirection: 'row', justifyContent: 'flex-start'}} onLayout={event => this.appLayout(event.nativeEvent.layout)}>
         <Image source={banner} resizeMode='contain' style={imgStyle} />
+      </View>
+    )
+  }
+}
+
+class TopBar extends Component {
+  constructor(props) {
+    super(props)
+  }
+  render() {
+    return (
+      <View style={{flexDirection:'row', justifyContent: 'space-between', height: 20, paddingRight: 5, paddingLeft: 5,backgroundColor:'grey', opacity:0.7}}>
+      <TouchableHighlight onPress={()=>{this.props.par._startAgain()}}>
+        <Text style={[styles.roomDescription, {color: 'black'}]}>
+        Main Menu
+        </Text>
+      </TouchableHighlight>
+      <View style={{flexDirection: 'row'}}>
+      <Text style={[styles.roomDescription, {color:'red'}]}>
+        A
+      </Text>
+      <Text style={[styles.roomDescription, {color:'green'}]}>
+        V
+      </Text>
+      <Text style={[styles.roomDescription, {color:termBlue}]}>
+        E
+      </Text>
+      </View>
       </View>
     )
   }
@@ -359,11 +405,28 @@ class MenuScreen extends Component {
     var window = this.state.layout
     return(
       <View style={styles.container} onLayout={event => this.appLayout(event.nativeEvent.layout)}>
+      <StatusBar hidden={true} />
+      <View style={{flexDirection:'row', justifyContent: 'flex-end', height: 20, paddingRight: 5,backgroundColor:'grey', opacity:0.7}}>
+        <TouchableHighlight>
+          <Text style={[styles.roomDescription,{color: 'black'}]}>Download more games</Text>
+        </TouchableHighlight>
+      </View>
       <View style={{flex: 1, paddingLeft: 5, paddingRight: 5}} >
         <BannerImage par={this} lay={this.state.layout}/>
-        <Text style={styles.roomDescription}>
-        AVE: Adventure! Villainy! Excitement!
+        <View style={{flexDirection: 'row', justifyContent: 'flex-start'}}>
+        <Text style={[styles.roomDescription, {color:'red'}]}>
+          A
         </Text>
+        <Text style={[styles.roomDescription, {color:'green'}]}>
+          V
+        </Text>
+        <Text style={[styles.roomDescription, {color:termBlue}]}>
+          E
+        </Text>
+        <Text style={styles.roomDescription}>
+        : Adventure! Villainy! Excitement!
+        </Text>
+        </View>
         <Text style={[styles.roomDescription, {textAlign:'right'}]}>
           A text-based game engine written by Gin Grasso & Matthew Scroggs.
         </Text>
@@ -531,7 +594,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     justifyContent: 'space-between',
-    paddingTop: 20,
     backgroundColor: bgColor,
   },
   gameOverMenu: {
