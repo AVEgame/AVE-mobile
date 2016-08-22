@@ -316,13 +316,9 @@ class BannerImage extends Component {
   appLayout(orient) {
     var window = this.props.lay
     var landscape = window.width>window.height
-    console.log("Layout")
-    console.log(landscape)
     this.setState({land: landscape, imgHeight: orient.height})
   }
   render() {
-    console.log("Render")
-    console.log(this.state.land)
     if (Platform.OS === "ios") {
       if (this.props.par.state.layout.height == null ) {
         var bannerloc = 'a'
@@ -338,12 +334,12 @@ class BannerImage extends Component {
         var banner = {uri: 'a'}
       }
       else {
-        var banner = (this.props.par.state.land || this.props.par.state.layout.height < 470 ) ? require('./bannerlandscape.png') : require('./bannerportrait.png')
+        var banner = (this.props.par.state.land || this.props.par.state.layout.height < 400 ) ? require('./bannerlandscape.png') : require('./bannerportrait.png')
       }
       var imgStyle = {flex: 1, height: this.state.imgHeight, width: window.width}
     }
     return (
-      <View style={{flex: 1, width: window.width, minHeight: (this.props.par.state.layout.height > 300) ? 100 : 70, flexDirection: 'row', justifyContent: 'flex-start'}} onLayout={event => this.appLayout(event.nativeEvent.layout)}>
+      <View style={{flex: 1, width: window.width, minHeight: (this.props.par.state.layout.height > 320) ? 100 : 70, flexDirection: 'row', justifyContent: 'flex-start'}} onLayout={event => this.appLayout(event.nativeEvent.layout)}>
         <Image source={banner} resizeMode='contain' style={imgStyle} />
       </View>
     )
@@ -424,8 +420,13 @@ class MenuScreen extends Component {
           E
         </Text>
         <Text style={styles.roomDescription}>
-        : Adventure! Villainy! Excitement!
+          :
         </Text>
+        <View style={{flexDirection: 'column'}}>
+        <Text style={styles.roomDescription}>
+        {(this.state.layout.width< 330) ? "Adventure! Villainy! \nExcitement!" : "Adventure! Villainy! Excitement!"}
+        </Text>
+        </View>
         </View>
         <Text style={[styles.roomDescription, {textAlign:'right'}]}>
           A text-based game engine written by Gin Grasso & Matthew Scroggs.
