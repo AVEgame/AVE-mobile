@@ -21,7 +21,9 @@ import {
 } from 'react-native';
 
 bgColor = "#2f0923"
-termBlue = "#264a85"
+blue = "#32619e"
+red = "#cc0000"
+green = "#4d9906"
 
 scrollHeightPort = 150
 scrollHeightLand = 130
@@ -352,20 +354,20 @@ class TopBar extends Component {
   }
   render() {
     return (
-      <View style={{flexDirection:'row', justifyContent: 'space-between', height: 20, paddingRight: 5, paddingLeft: 5,backgroundColor:'grey', opacity:0.7}}>
+      <View style={styles.topBar}>
       <TouchableHighlight onPress={()=>{this.props.par._startAgain()}}>
         <Text style={[styles.roomDescription, {color: 'black'}]}>
         Main Menu
         </Text>
       </TouchableHighlight>
       <View style={{flexDirection: 'row'}}>
-      <Text style={[styles.roomDescription, {color:'red'}]}>
+      <Text style={[styles.roomDescription, {color:red}]}>
         A
       </Text>
-      <Text style={[styles.roomDescription, {color:'green'}]}>
+      <Text style={[styles.roomDescription, {color:green}]}>
         V
       </Text>
-      <Text style={[styles.roomDescription, {color:termBlue}]}>
+      <Text style={[styles.roomDescription, {color:blue}]}>
         E
       </Text>
       </View>
@@ -402,21 +404,32 @@ class MenuScreen extends Component {
     return(
       <View style={styles.container} onLayout={event => this.appLayout(event.nativeEvent.layout)}>
       <StatusBar hidden={true} />
-      <View style={{flexDirection:'row', justifyContent: 'flex-end', height: 20, paddingRight: 5,backgroundColor:'grey', opacity:0.7}}>
+      <View style={styles.topBar}>
         <TouchableHighlight>
           <Text style={[styles.roomDescription,{color: 'black'}]}>Download more games</Text>
         </TouchableHighlight>
+        <View style={{flexDirection: 'row'}}>
+        <Text style={[styles.roomDescription, {color:red}]}>
+          A
+        </Text>
+        <Text style={[styles.roomDescription, {color:green}]}>
+          V
+        </Text>
+        <Text style={[styles.roomDescription, {color:blue}]}>
+          E
+        </Text>
+        </View>
       </View>
       <View style={{flex: 1, paddingLeft: 5, paddingRight: 5}} >
         <BannerImage par={this} lay={this.state.layout}/>
         <View style={{flexDirection: 'row', justifyContent: 'flex-start'}}>
-        <Text style={[styles.roomDescription, {color:'red'}]}>
+        <Text style={[styles.roomDescription, {color:red}]}>
           A
         </Text>
-        <Text style={[styles.roomDescription, {color:'green'}]}>
+        <Text style={[styles.roomDescription, {color:green}]}>
           V
         </Text>
-        <Text style={[styles.roomDescription, {color:termBlue}]}>
+        <Text style={[styles.roomDescription, {color:blue}]}>
           E
         </Text>
         <Text style={styles.roomDescription}>
@@ -664,6 +677,14 @@ const styles = StyleSheet.create({
     height: 1,
     backgroundColor: bgColor,
     opacity: 0.3
+  },
+  topBar: {
+    flexDirection:'row',
+    height: 20,
+    paddingRight: 5,
+    paddingLeft: 5,
+    backgroundColor:'rgba(100,100,100,0.3)',
+    justifyContent: 'space-between'
   }
 });
 
