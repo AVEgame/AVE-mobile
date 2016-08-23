@@ -28,6 +28,11 @@ green = "#4d9906"
 scrollHeightPort = 150
 scrollHeightLand = 130
 
+dim = Dimensions.get('window')
+
+screenHeight = Math.max(dim.height, dim.width)
+screenWidth = Math.min(dim.height, dim.width)
+
 storageKey = "@AVEgameData:"
 
 monospace = (Platform.OS === "ios") ? "Courier New" : "monospace"
@@ -329,7 +334,7 @@ class BannerImage extends Component {
         var bannerloc = (this.props.par.state.land) ? 'bannerlandscape.png' : 'bannerportrait.png';
       }
       var banner = {uri: bannerloc}
-      var imgStyle = {flex: 1}
+      var imgStyle = {flex: 1, maxHeight: this.props.par.land ? screenWidth/3 : screenHeight/3}
     }
     else {
       if (this.props.par.state.layout.height == null ) {
@@ -340,8 +345,10 @@ class BannerImage extends Component {
       }
       var imgStyle = {flex: 1, height: this.state.imgHeight, width: window.width}
     }
+    console.log(this.props.par.state.land)
+    console.log(banner)
     return (
-      <View style={{flex: 1, width: window.width, minHeight: (this.props.par.state.layout.height > 320) ? 100 : 70, flexDirection: 'row', justifyContent: 'flex-start'}} onLayout={event => this.appLayout(event.nativeEvent.layout)}>
+      <View style={{flex: 1, maxHeight: this.props.par.land ? screenWidth/3 : screenHeight/3, width: window.width, minHeight: (this.props.par.state.layout.height > 320) ? 100 : 70, flexDirection: 'row', justifyContent: 'flex-start'}} onLayout={event => this.appLayout(event.nativeEvent.layout)}>
         <Image source={banner} resizeMode='contain' style={imgStyle} />
       </View>
     )
@@ -356,7 +363,7 @@ class TopBar extends Component {
     return (
       <View style={styles.topBar}>
       <TouchableHighlight onPress={()=>{this.props.par._startAgain()}}>
-        <Text style={[styles.roomDescription, {color: 'black'}]}>
+        <Text style={[styles.roomDescription]}>
         Main Menu
         </Text>
       </TouchableHighlight>
@@ -406,7 +413,7 @@ class MenuScreen extends Component {
       <StatusBar hidden={true} />
       <View style={styles.topBar}>
         <TouchableHighlight>
-          <Text style={[styles.roomDescription,{color: 'black'}]}>Download more games</Text>
+          <Text style={[styles.roomDescription]}>Download more games</Text>
         </TouchableHighlight>
         <View style={{flexDirection: 'row'}}>
         <Text style={[styles.roomDescription, {color:red}]}>
@@ -422,6 +429,7 @@ class MenuScreen extends Component {
       </View>
       <View style={{flex: 1, paddingLeft: 5, paddingRight: 5}} >
         <BannerImage par={this} lay={this.state.layout}/>
+        <View style={{height: this.state.land ? 0 : 20}} />
         <View style={{flexDirection: 'row', justifyContent: 'flex-start'}}>
         <Text style={[styles.roomDescription, {color:red}]}>
           A
@@ -450,9 +458,9 @@ class MenuScreen extends Component {
         <Text style={[styles.roomDescription, {textAlign:'right'}]}>
           github.com/AVEgame/AVE
         </Text>
-        <View style={{height: 100}} />
+        <View style={{height: 20}} />
       </View>
-        <ScrollView showsVerticalScrollIndicator={true} style={{flex: 0, height: 100, backgroundColor: 'yellow'}}>
+        <ScrollView showsVerticalScrollIndicator={true} style={{flex: 0, height: this.state.land ? screenWidth/3 : screenHeight/3, backgroundColor: 'yellow'}}>
         <ListView
           dataSource={dataSource}
           renderRow={(rowData) => this.touchable(JSON.parse(rowData[1]))}
