@@ -345,8 +345,6 @@ class BannerImage extends Component {
       }
       var imgStyle = {flex: 1, height: this.state.imgHeight, width: window.width}
     }
-    console.log(this.props.par.state.land)
-    console.log(banner)
     return (
       <View style={{flex: 1, maxHeight: this.props.par.land ? screenWidth/3 : screenHeight/3, width: window.width, minHeight: (this.props.par.state.layout.height > 320) ? 100 : 70, flexDirection: 'row', justifyContent: 'flex-start'}} onLayout={event => this.appLayout(event.nativeEvent.layout)}>
         <Image source={banner} resizeMode='contain' style={imgStyle} />
