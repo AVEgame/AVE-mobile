@@ -689,7 +689,7 @@ const styles = StyleSheet.create({
     height: 20,
     paddingRight: 5,
     paddingLeft: 5,
-    backgroundColor:'rgba(100,100,100,0.3)',
+    backgroundColor:'rgba(100,100,100,0.5)',
     justifyContent: 'space-between'
   }
 });
