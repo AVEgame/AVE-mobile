@@ -334,7 +334,7 @@ class BannerImage extends Component {
         var bannerloc = (this.props.par.state.land) ? 'bannerlandscape.png' : 'bannerportrait.png';
       }
       var banner = {uri: bannerloc}
-      var imgStyle = {flex: 1, maxHeight: this.props.par.land ? screenWidth/3 : screenHeight/3}
+      var imgStyle = {flex: 1, maxHeight: this.props.par.land ? screenWidth/3 : screenHeight * 0.4}
     }
     else {
       if (this.props.par.state.layout.height == null ) {
@@ -343,10 +343,10 @@ class BannerImage extends Component {
       else {
         var banner = (this.props.par.state.land || this.props.par.state.layout.height < 400 ) ? require('./bannerlandscape.png') : require('./bannerportrait.png')
       }
-      var imgStyle = {flex: 1, maxHeight: this.props.par.land ? screenWidth/3 : screenHeight/3, width: window.width}
+      var imgStyle = {flex: 1, maxHeight: this.props.par.land ? screenWidth/3 : screenHeight * 0.4, width: window.width}
     }
     return (
-      <View style={{flex: 1, maxHeight: this.props.par.land ? screenWidth/3 : screenHeight/3, width: window.width, minHeight: (this.props.par.state.layout.height > 320) ? 100 : 70, flexDirection: 'row', justifyContent: 'flex-start'}} onLayout={event => this.appLayout(event.nativeEvent.layout)}>
+      <View style={{flex: 1, maxHeight: this.props.par.land ? screenWidth/3 : screenHeight * 0.4, width: window.width, minHeight: (this.props.par.state.layout.height > 320) ? 100 : 70, flexDirection: 'row', justifyContent: 'flex-start'}} onLayout={event => this.appLayout(event.nativeEvent.layout)}>
         <Image source={banner} resizeMode='contain' style={imgStyle} />
       </View>
     )
