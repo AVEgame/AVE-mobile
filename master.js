@@ -442,12 +442,12 @@ class MenuScreen extends Component {
           :
         </Text>
         <View style={{flexDirection: 'column'}}>
-        <Text style={styles.roomDescription}>
+        <Text style={[styles.roomDescription, {paddingBottom: 3}]}>
         {(this.state.layout.width< 330) ? "Adventure! Villainy! \nExcitement!" : "Adventure! Villainy! Excitement!"}
         </Text>
         </View>
         </View>
-        <Text style={[styles.roomDescription, {textAlign:'right'}]}>
+        <Text style={[styles.roomDescription, {textAlign:'left', paddingBottom: 5}]}>
           A text-based game engine written by Gin Grasso & Matthew Scroggs.
         </Text>
         <Text style={[styles.roomDescription, {textAlign:'right'}]}>
