@@ -318,7 +318,7 @@ class BannerImage extends Component {
     super(props)
     var window = this.props.par.state.layout
     var landscape = window.width>window.height
-    this.state = {land: landscape}
+    this.state = {land: landscape, imgHeight: 10000}
   }
   appLayout(orient) {
     var window = this.props.lay
@@ -334,7 +334,7 @@ class BannerImage extends Component {
         var bannerloc = (this.props.par.state.land) ? 'bannerlandscape.png' : 'bannerportrait.png';
       }
       var banner = {uri: bannerloc}
-      var imgStyle = {flex: 1, maxHeight: this.props.par.land ? screenWidth/3 : screenHeight * 0.4}
+      var imgStyle = {flex: 1, maxHeight: this.props.par.land ? Math.min(screenWidth/3, this.state.imgHeight) : Math.min(screenHeight * 0.4, this.state.imgHeight)}
     }
     else {
       if (this.props.par.state.layout.height == null ) {
@@ -343,7 +343,7 @@ class BannerImage extends Component {
       else {
         var banner = (this.props.par.state.land || this.props.par.state.layout.height < 400 ) ? require('./bannerlandscape.png') : require('./bannerportrait.png')
       }
-      var imgStyle = {flex: 1, maxHeight: this.props.par.land ? screenWidth/3 : screenHeight * 0.4, width: window.width}
+      var imgStyle = {flex: 1, maxHeight: this.props.par.land ? Math.min(screenWidth/3, this.state.imgHeight) : Math.min(screenHeight * 0.4, this.state.imgHeight), width: window.width}
     }
     return (
       <View style={{flex: 1, maxHeight: this.props.par.land ? screenWidth/3 : screenHeight * 0.4, width: window.width, minHeight: (this.props.par.state.layout.height > 320) ? 100 : 70, flexDirection: 'row', justifyContent: 'flex-start'}} onLayout={event => this.appLayout(event.nativeEvent.layout)}>
