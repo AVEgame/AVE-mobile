@@ -224,6 +224,34 @@ class HighlightItem extends Component {
   }
 }
 
+class TopBar extends Component {
+  constructor(props) {
+    super(props)
+  }
+  render() {
+    return (
+      <View style={styles.topBar}>
+      <TouchableHighlight onPress={()=>{this.props.par._startAgain()}}>
+        <Text style={[styles.roomDescription]}>
+        Main Menu
+        </Text>
+      </TouchableHighlight>
+      <View style={{flexDirection: 'row'}}>
+      <Text style={[styles.roomDescription, {color:red}]}>
+        A
+      </Text>
+      <Text style={[styles.roomDescription, {color:green}]}>
+        V
+      </Text>
+      <Text style={[styles.roomDescription, {color:blue}]}>
+        E
+      </Text>
+      </View>
+      </View>
+    )
+  }
+}
+
 class GameTitle extends Component {
   constructor(props) {
     super(props)
@@ -334,7 +362,7 @@ class BannerImage extends Component {
         var bannerloc = (this.props.par.state.land) ? 'bannerlandscape.png' : 'bannerportrait.png';
       }
       var banner = {uri: bannerloc}
-      var imgStyle = {flex: 1, maxHeight: this.props.par.land ? Math.min(screenWidth/3, this.state.imgHeight) : Math.min(screenHeight * 0.4, this.state.imgHeight)}
+      var imgStyle = {flex: 1, maxHeight: this.props.par.state.land ? Math.min(screenWidth/3, this.state.imgHeight) : Math.min(screenHeight * 0.4, this.state.imgHeight)}
     }
     else {
       if (this.props.par.state.layout.height == null ) {
@@ -343,39 +371,11 @@ class BannerImage extends Component {
       else {
         var banner = (this.props.par.state.land || this.props.par.state.layout.height < 400 ) ? require('./bannerlandscape.png') : require('./bannerportrait.png')
       }
-      var imgStyle = {flex: 1, maxHeight: this.props.par.land ? Math.min(screenWidth/3, this.state.imgHeight) : Math.min(screenHeight * 0.4, this.state.imgHeight), width: window.width}
+      var imgStyle = {flex: 1, maxHeight: this.props.par.state.land ? Math.min(screenWidth/3, this.state.imgHeight) : Math.min(screenHeight * 0.4, this.state.imgHeight), width: window.width}
     }
     return (
-      <View style={{flex: 1, maxHeight: this.props.par.land ? screenWidth/3 : screenHeight * 0.4, width: window.width, minHeight: (this.props.par.state.layout.height > 320) ? 100 : 70, flexDirection: 'row', justifyContent: 'flex-start'}} onLayout={event => this.appLayout(event.nativeEvent.layout)}>
+      <View style={{flex: 1, maxHeight: this.props.par.state.land ? screenWidth/3 : screenHeight * 0.4, width: window.width, minHeight: (this.props.par.state.layout.height > 320) ? 100 : 70, flexDirection: 'row', justifyContent: 'flex-start'}} onLayout={event => this.appLayout(event.nativeEvent.layout)}>
         <Image source={banner} resizeMode='contain' style={imgStyle} />
-      </View>
-    )
-  }
-}
-
-class TopBar extends Component {
-  constructor(props) {
-    super(props)
-  }
-  render() {
-    return (
-      <View style={styles.topBar}>
-      <TouchableHighlight onPress={()=>{this.props.par._startAgain()}}>
-        <Text style={[styles.roomDescription]}>
-        Main Menu
-        </Text>
-      </TouchableHighlight>
-      <View style={{flexDirection: 'row'}}>
-      <Text style={[styles.roomDescription, {color:red}]}>
-        A
-      </Text>
-      <Text style={[styles.roomDescription, {color:green}]}>
-        V
-      </Text>
-      <Text style={[styles.roomDescription, {color:blue}]}>
-        E
-      </Text>
-      </View>
       </View>
     )
   }
@@ -410,7 +410,7 @@ class MenuScreen extends Component {
       <View style={styles.container} onLayout={event => this.appLayout(event.nativeEvent.layout)}>
       <StatusBar hidden={true} />
       <View style={styles.topBar}>
-        <TouchableHighlight>
+        <TouchableHighlight onPress={()=>this.props.par._downloadGames()}>
           <Text style={[styles.roomDescription]}>Download more games</Text>
         </TouchableHighlight>
         <View style={{flexDirection: 'row'}}>
@@ -469,7 +469,123 @@ class MenuScreen extends Component {
     )
   }
   appLayout(orient) {
-    this.setState({layout: orient, land: orient.width > orient.height })
+    this.setState({layout: orient, land: orient.width > orient.height });
+  }
+}
+
+class LoadingScreen extends Component {
+  constructor(props) {
+    super(props);
+  }
+  render() {
+    return (
+      <View style={styles.container}>
+        <StatusBar hidden={true} />
+        <TopBar par={this.props.par}/>
+        <View style={styles.gameOver}>
+          <View style={styles.gameOverTextCont}>
+            <Text style={styles.gameOverText}>{this.props.text}</Text>
+          </View>
+        </View>
+        <View style={styles.gameOverMenu}>
+          <TouchableHighlight onPress={()=>this.props.par._cancelRequest()}>
+            <Text style={styles.menuItem}>{this.props.menutext}</Text>
+          </TouchableHighlight>
+        </View>
+      </View>
+    )
+  }
+}
+
+class DownloadScreen extends Component {
+  constructor(props) {
+    super(props);
+    this.ds = new ListView.DataSource({rowHasChanged: (r1, r2) => r1 !== r2});
+  }
+  touchable(rowData) {
+    return (
+      <TouchableHighlight onPress={()=>this.props.par._downloadPreview(rowData)}>
+        <Text style={styles.menuItem}>
+          {rowData[1].title}
+        </Text>
+      </TouchableHighlight>
+    )
+  }
+  render() {
+    dataSource = this.ds.cloneWithRows(this.props.games)
+    return (
+      <View style={styles.container}>
+      <StatusBar hidden={true} />
+      <TopBar />
+      <View style={{flex:1,height: this.props.par.state.land ? screenWidth -20 : screenHeight-20, justifyContent: 'space-between'}}>
+        <View style={{flex: 1}}>
+          <View style={{padding: 10, flex: 0}}>
+            <Text style={[styles.roomDescription, {fontSize: 20}]}>Choose a game below to see more information:</Text>
+          </View>
+          <ScrollView style={{flex:1,backgroundColor:'yellow'}}>
+            <ListView
+              dataSource={dataSource}
+              renderRow={(rowData) => this.touchable(rowData)}
+            />
+          </ScrollView>
+        </View>
+        <View style={{flex:0, flexDirection: 'row'}}>
+          <TouchableHighlight style={{flex:1, backgroundColor:'blue'}}>
+            <Text style={[styles.roomDescription,{textAlign: 'center', fontSize:20}]}>Manage Installed Games</Text>
+          </TouchableHighlight>
+        </View>
+      </View>
+      </View>
+    )
+  }
+}
+
+class DownloadPreview extends Component {
+  constructor(props) {
+    super(props);
+    this.state = {layout: {}}
+  }
+  render() {
+    var window = this.state.layout
+    return(
+    <View onLayout={event => this.appLayout(event.nativeEvent.layout)} style={styles.container}>
+    <TopBar par={this.props.par} />
+    <StatusBar hidden={true} />
+    <View style={styles.titleContParent}>
+      <View style={styles.titleCont}>
+        <Text style={styles.gameTitle}>
+          {this.props.game[1].title}
+        </Text>
+      </View>
+      <View style={[styles.titleCont,{paddingBottom:30}]}>
+        <Text style={styles.gameAuthors}>
+          {"By: " + this.props.game[1].author}
+        </Text>
+      </View>
+      <View style={styles.titleCont}>
+        <Text style={styles.gameDesc}>
+          {this.props.game[1].desc}
+        </Text>
+      </View>
+      </View>
+      <View style={styles.gameOverMenu}>
+        <TouchableHighlight onPress={()=>this.props.par._downloadGame(this.props.game)}>
+          <Text style={styles.menuItem}>
+            Download
+          </Text>
+        </TouchableHighlight>
+        <View style={[styles.separator,{width: window.width - 20, marginLeft: 10}]}/>
+        <TouchableHighlight onPress={()=>this.props.par._downloadScreen()}>
+          <Text style={styles.menuItem}>
+            Go back
+          </Text>
+        </TouchableHighlight>
+      </View>
+    </View>
+  )
+  }
+  appLayout(orient) {
+    this.setState({layout: orient})
   }
 }
 
@@ -483,9 +599,10 @@ export default class AVEmobile extends Component {
   constructor() {
     super()
     this._onPressButton = this._onPressButton.bind(this);
+    this._downloadGames = this._downloadGames.bind(this);
     this._start = this._start.bind(this);
     this._prepareData();
-    this.state = {displayType: "none", roomId: "start", inventory: [], realInv: [" "], gameList: [[" ",{}]]}
+    this.state = {displayType: "none", roomId: "start", inventory: [], realInv: [" "], gameList: [[" ",{}]], request: null}
   }
   async _prepareData() {
     AsyncStorage.getAllKeys((err,keys)=>{this._storeIfNeeded(err, keys)})
@@ -543,12 +660,27 @@ export default class AVEmobile extends Component {
     inv = getInventory(this.state.inventory,this.state.gameData.items)
     return (inv.length > 0 ? inv : [" "])
   }
+  _downloadPreview(data) {
+    this.setState({displayType: "downloadPreview", game: data})
+  }
   render() {
     if (this.state.displayType === "none" ) {
       r = <View style={styles.container} />
     }
+    else if (this.state.displayType === "loading" ) {
+      r = <LoadingScreen par={this} text="Loading..." menutext="Cancel" />
+    }
+    else if (this.state.displayType === "failedData") {
+      r = <LoadingScreen par={this} text="Failed to connect" menutext="Continue" />
+    }
     else if ( this.state.displayType === "menu" ) {
       r = <MenuScreen games={this.state.gameList} par={this}/>
+    }
+    else if ( this.state.displayType === "download" ) {
+      r = <DownloadScreen games={this.state.gamesAvail} par={this} />
+    }
+    else if ( this.state.displayType === "downloadPreview" ) {
+      r = <DownloadPreview game={this.state.game} par={this} />
     }
     else if (this.state.displayType === "title") {
       gameInfo = this.state.gameData.gameInfo
@@ -572,6 +704,72 @@ export default class AVEmobile extends Component {
     return (
         r
     );
+  }
+  _downloadGames() {
+    if (!(this.state.request == null) && !(this.state.request.DONE)) {
+      this.state.request.abort()
+    }
+    var requestLocal = new XMLHttpRequest();
+    this.setState({displayType: "loading", request: requestLocal})
+    requestLocal.onreadystatechange = (e) => {
+      console.log("Ready state changed")
+      if (requestLocal.readyState !== 4) {
+        return;
+      }
+      if (requestLocal.status === 200) {
+        var gameArray = JSON.parse(requestLocal.responseText);
+        var gameList = [];
+        for (key in gameArray) {
+          if ( gameArray[key].active ) {
+            gameList.push([key, gameArray[key]]);
+          }
+        }
+        console.log(gameList);
+        this.setState({displayType: "download", gamesAvail: gameList})
+      }
+      else {
+        console.log("Error getting data");
+        this.setState({displayType: "failedData"});
+      }
+    }
+    requestLocal.open('GET', 'http://avegame.co.uk/gamelist.json');
+    requestLocal.send();
+  }
+  _downloadGame(game) {
+    if (!(this.state.request == null) && !(this.state.request.DONE)) {
+      this.state.request.abort()
+    }
+    gameKey = game[0].substr(0,game[0].indexOf('.ave'))
+    var requestLocal = new XMLHttpRequest();
+    this.setState({displayType: "loading", request: requestLocal})
+    requestLocal.onreadystatechange = (e) => {
+      console.log("Ready state changed")
+      if (requestLocal.readyState !== 4) {
+        return;
+      }
+      if (requestLocal.status === 200) {
+        var gameData = JSON.parse(requestLocal.responseText);
+        gameData["gameInfo"] = game[1]
+        AsyncStorage.setItem(storageKey + gameKey, JSON.stringify(gameData)).then(()=>{this._prepareData()}).done()
+        console.log(gameData);
+      }
+      else {
+        console.log("Error getting data");
+        this.setState({displayType: "failedData"});
+      }
+    }
+    var gameLocation = gameKey + '.json';
+    requestLocal.open('GET', 'http://avegame.co.uk/download/' + gameLocation);
+    requestLocal.send();
+  }
+  _downloadScreen() {
+    this.setState({displayType: "download"});
+  }
+  _cancelRequest() {
+    if ( !(this.state.request == null) ) {
+      this.state.request.abort();
+    }
+    this.setState({displayType: "menu", request: null});
   }
 }
 
