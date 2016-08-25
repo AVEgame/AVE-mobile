@@ -185,7 +185,6 @@ class RoomView extends Component {
   }
   _renderRow(data, sectionId, rowId) {
     /* return (<Text style={styles.menuItem}>{data[0]}</Text>) */
-    console.log(data)
     return( <HighlightItem text={data.option} next={data.id} par={this.props.par} adds={data.adds} rems={data.rems} />)
   }
   onCollapse() {
@@ -412,7 +411,7 @@ class MenuScreen extends Component {
       <StatusBar hidden={true} />
       <View style={styles.topBar}>
         <TouchableHighlight onPress={()=>this.props.par._downloadGames()}>
-          <Text style={[styles.roomDescription]}>Download more games</Text>
+          <Text style={[styles.roomDescription]}>Manage Games</Text>
         </TouchableHighlight>
         <View style={{flexDirection: 'row'}}>
         <Text style={[styles.roomDescription, {color:red}]}>
@@ -501,6 +500,7 @@ class LoadingScreen extends Component {
 class DownloadScreen extends Component {
   constructor(props) {
     super(props);
+    this.state = {layout:{}}
     this.ds = new ListView.DataSource({rowHasChanged: (r1, r2) => r1 !== r2});
   }
   touchable(rowData) {
@@ -514,10 +514,11 @@ class DownloadScreen extends Component {
   }
   render() {
     dataSource = this.ds.cloneWithRows(this.props.games)
+    var window = this.state.layout
     return (
-      <View style={styles.container}>
+      <View style={styles.container} onLayout={event => this.appLayout(event.nativeEvent.layout)}>
       <StatusBar hidden={true} />
-      <TopBar />
+      <TopBar par={this.props.par} />
       <View style={{flex:1,height: this.props.par.state.land ? screenWidth -20 : screenHeight-20, justifyContent: 'space-between'}}>
         <View style={{flex: 1}}>
           <View style={{padding: 10, flex: 0}}>
@@ -527,17 +528,21 @@ class DownloadScreen extends Component {
             <ListView
               dataSource={dataSource}
               renderRow={(rowData) => this.touchable(rowData)}
+              renderSeparator={(sectionId, rowId) => <View key={rowId} style={[styles.separator,{width: window.width - 20, marginLeft: 10}]}/>}
             />
           </ScrollView>
         </View>
         <View style={{flex:0, flexDirection: 'row'}}>
-          <TouchableHighlight style={{flex:1, backgroundColor:'blue'}}>
+          <TouchableHighlight style={{flex:1, backgroundColor:'blue'}} onPress={this.props.par._manageGames}>
             <Text style={[styles.roomDescription,{textAlign: 'center', fontSize:20}]}>Manage Installed Games</Text>
           </TouchableHighlight>
         </View>
       </View>
       </View>
     )
+  }
+  appLayout(orient) {
+    this.setState({layout: orient, land: orient.width > orient.height });
   }
 }
 
@@ -590,6 +595,99 @@ class DownloadPreview extends Component {
   }
 }
 
+class ManageScreen extends Component {
+  constructor(props) {
+    super(props)
+    this.ds = new ListView.DataSource({rowHasChanged: (r1, r2) => r1 !== r2});
+    this.state = {gameList: [[" ",'{"gameInfo":""}']], layout: {}}
+    this.getGamesList()
+  }
+  getGamesList() {
+    AsyncStorage.getAllKeys((err,keys)=>AsyncStorage.multiGet(keys, (err, keyList)=>{
+      this.setState({gameList: keyList})
+    }))
+  }
+  touchable(rowData) {
+    return(
+      <TouchableHighlight onPress={()=>this.props.par._manageGame(rowData)}>
+        <Text style={styles.menuItem}>{JSON.parse(rowData[1]).gameInfo.title}</Text>
+      </TouchableHighlight>
+    )
+  }
+  render() {
+    var window = this.state.layout
+    dataSource = this.ds.cloneWithRows(this.state.gameList)
+    return (
+      <View style={styles.container} onLayout={event => this.appLayout(event.nativeEvent.layout)}>
+        <StatusBar hidden={true} />
+        <TopBar par={this.props.par} />
+        <View style={{flex: 0, padding: 5}}>
+          <Text style={[styles.roomDescription,{fontSize: 20}]}>Choose a game for more info</Text>
+        </View>
+        <ScrollView style={{flex:1, backgroundColor: 'yellow'}}>
+          <ListView
+            dataSource={dataSource}
+            renderRow={(rowData) => this.touchable(rowData)}
+            renderSeparator={(sectionId, rowId) => <View key={rowId} style={[styles.separator,{width: window.width - 20, marginLeft: 10}]}/>}
+          />
+        </ScrollView>
+      </View>
+    )
+  }
+  appLayout(orient) {
+    this.setState({layout: orient, land: orient.width > orient.height });
+  }
+}
+
+class ManagePreview extends Component {
+  constructor(props) {
+    super(props)
+    this.state = {layout: {}}
+  }
+  render() {
+    var window = this.state.layout
+    return (
+      <View style={styles.container} onLayout={event => this.appLayout(event.nativeEvent.layout)}>
+      <TopBar par={this.props.par} />
+      <StatusBar hidden={true} />
+      <View style={styles.titleContParent}>
+        <View style={styles.titleCont}>
+          <Text style={styles.gameTitle}>
+            {this.props.game[1].title}
+          </Text>
+        </View>
+        <View style={[styles.titleCont,{paddingBottom:30}]}>
+          <Text style={styles.gameAuthors}>
+            {"By: " + this.props.game[1].author}
+          </Text>
+        </View>
+        <View style={styles.titleCont}>
+          <Text style={styles.gameDesc}>
+            {this.props.game[1].desc}
+          </Text>
+        </View>
+        </View>
+        <View style={styles.gameOverMenu}>
+          <TouchableHighlight onPress={()=>this.props.par._removeGame(this.props.game[0])}>
+            <Text style={styles.menuItem}>
+              Remove game
+            </Text>
+          </TouchableHighlight>
+          <View style={[styles.separator,{width: window.width - 20, marginLeft: 10}]}/>
+          <TouchableHighlight onPress={()=>this.props.par._manageGames()}>
+            <Text style={styles.menuItem}>
+              Go back
+            </Text>
+          </TouchableHighlight>
+        </View>
+      </View>
+    )
+  }
+  appLayout(orient) {
+    this.setState({layout: orient, land: orient.width > orient.height });
+  }
+}
+
 /*<TouchableHighlight id="tea" onPress={()=>this.props.par._loadGame('@AVEgameData:tea')}>
   <Text style={styles.menuItem}>
     Wonderful tea journey
@@ -601,6 +699,7 @@ export default class AVEmobile extends Component {
     super()
     this._onPressButton = this._onPressButton.bind(this);
     this._downloadGames = this._downloadGames.bind(this);
+    this._manageGames = this._manageGames.bind(this)
     this._start = this._start.bind(this);
     this._prepareData();
     this.state = {displayType: "none", roomId: "start", inventory: [], realInv: [" "], gameList: [[" ",{}]], request: null}
@@ -625,7 +724,6 @@ export default class AVEmobile extends Component {
     addItems(option.props.adds, this.state.inventory)
     removeItems(option.props.rems, this.state.inventory)
     roomResult = getRoom(option.props.next, this.state.gameData.rooms, this.state.inventory)
-    console.log(roomResult)
     realInvNew = this._getInventory()
     this.setState({roomId: option.props.next, roomDesc: roomResult[0], roomOpts: roomResult[1], realInv: realInvNew})
   }
@@ -642,7 +740,13 @@ export default class AVEmobile extends Component {
     this.setState({displayType: "menu"})
   }
   _menu(err, keyList) {
-    this.setState({displayType: "menu", roomId: "start", inventory: [], realInv: [" "], gameList: keyList})
+    var gameList = []
+    for (key in keyList) {
+      if (!(keyList[key][1] == null)) {
+        gameList.push(keyList[key])
+      }
+    }
+    this.setState({displayType: "menu", roomId: "start", inventory: [], realInv: [" "], gameList: gameList})
   }
   async _start() {
     AsyncStorage.getAllKeys((err,keys)=> {AsyncStorage.multiGet(keys, this._menu.bind(this))})
@@ -656,7 +760,6 @@ export default class AVEmobile extends Component {
   }
   _startGame() {
     roomResult = getRoom("start", this.state.gameData.rooms, [])
-    console.log(roomResult)
     this.setState({displayType: "room", roomDesc: roomResult[0], roomOpts: roomResult[1], inventory:[], realInv: [" "], roomId: "start"})
   }
   _getInventory() {
@@ -684,6 +787,12 @@ export default class AVEmobile extends Component {
     }
     else if ( this.state.displayType === "downloadPreview" ) {
       r = <DownloadPreview game={this.state.game} par={this} />
+    }
+    else if ( this.state.displayType === "manage" ) {
+      r = <ManageScreen par={this}/>
+    }
+    else if (this.state.displayType === "managePreview" ) {
+      r = <ManagePreview par={this} game={this.state.manageGame}/>
     }
     else if (this.state.displayType === "title") {
       gameInfo = this.state.gameData.gameInfo
@@ -727,7 +836,6 @@ export default class AVEmobile extends Component {
             gameList.push([key, gameArray[key]]);
           }
         }
-        console.log(gameList);
         this.setState({displayType: "download", gamesAvail: gameList})
       }
       else {
@@ -753,8 +861,10 @@ export default class AVEmobile extends Component {
       if (requestLocal.status === 200) {
         var gameData = JSON.parse(requestLocal.responseText);
         gameData["gameInfo"] = game[1]
-        AsyncStorage.setItem(storageKey + gameKey, JSON.stringify(gameData)).then(()=>{this._prepareData()}).done()
-        console.log(gameData);
+        AsyncStorage.setItem(storageKey + gameKey, JSON.stringify(gameData)).then(()=>{
+          AsyncStorage.getAllKeys((err,keys)=> {AsyncStorage.multiGet(keys, (err,keyList)=>this.setState({gameList: keyList, displayType: "download"}))})
+          }
+        ).done()
       }
       else {
         console.log("Error getting data");
@@ -773,6 +883,16 @@ export default class AVEmobile extends Component {
       this.state.request.abort();
     }
     this.setState({displayType: "menu", request: null});
+  }
+  _manageGames() {
+    this.setState({displayType: "manage"})
+  }
+  _manageGame(gameData) {
+    var game = [gameData[0], JSON.parse(gameData[1]).gameInfo]
+    this.setState({displayType: "managePreview", manageGame: game})
+  }
+  _removeGame(gameKey) {
+    AsyncStorage.removeItem(gameKey).then(AsyncStorage.getAllKeys((err,keys)=> {AsyncStorage.multiGet(keys, (err,keyList)=>this.setState({gameList: keyList, displayType: "menu"}))})).done()
   }
 }
 
