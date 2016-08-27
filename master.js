@@ -410,7 +410,7 @@ class MenuScreen extends Component {
       <View style={styles.container} onLayout={event => this.appLayout(event.nativeEvent.layout)}>
       <StatusBar hidden={true} />
       <View style={styles.topBar}>
-        <TouchableHighlight onPress={()=>this.props.par._downloadGames()}>
+        <TouchableHighlight onPress={()=>this.props.par._manageGames()}>
           <Text style={[styles.roomDescription]}>Manage Games</Text>
         </TouchableHighlight>
         <View style={{flexDirection: 'row'}}>
@@ -631,6 +631,11 @@ class ManageScreen extends Component {
             renderSeparator={(sectionId, rowId) => <View key={rowId} style={[styles.separator,{width: window.width - 20, marginLeft: 10}]}/>}
           />
         </ScrollView>
+        <View style={{flex:0, flexDirection: 'row'}}>
+          <TouchableHighlight style={{flex:1, backgroundColor:'blue'}} onPress={this.props.par._downloadGames}>
+            <Text style={[styles.roomDescription,{textAlign: 'center', fontSize:20}]}>Download More Games</Text>
+          </TouchableHighlight>
+        </View>
       </View>
     )
   }
