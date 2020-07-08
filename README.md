@@ -1,4 +1,4 @@
-# AVE-mobil
+# AVE-mobile
 
 ## Setting up development environment
 
