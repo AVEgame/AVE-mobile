@@ -61,8 +61,11 @@ export default class AVEmobile extends Component {
     else if (this.state.displayType === "game") {
       r = <RoomView par={this}/>
     }
-    else if (this.state.displayType == "gameover") {
+    else if (this.state.displayType === "gameover") {
       r = <GameOver par={this}/>
+    }
+    else if (this.state.displayType === "error") {
+      r = <ErrorView par={this}/>
     }
     return (
         r
@@ -86,6 +89,9 @@ export default class AVEmobile extends Component {
           }
         }
         this.setState({gameList: gameList});
+      }
+      else {
+        this.setState({displayType: "error"})
       }
     }
     request.open('GET', 'https://www.avegame.co.uk/gamelist.json');
@@ -154,6 +160,9 @@ export default class AVEmobile extends Component {
           })
         }
       }
+      else {
+        this.setState({displayType: "error"})
+      }
     }
     request.send(JSON.stringify(data));
   }
@@ -164,6 +173,95 @@ export default class AVEmobile extends Component {
     else {
       this._startAgain();
     }
+  }
+}
+
+class MenuScreen extends Component {
+  constructor(props) {
+    super(props)
+    this.banner = <BannerImage par={this}/>
+    this.state = {layout: {}, land: false}
+  }
+  touchable(game) {
+    var t = game.title
+    return (
+      <TouchableHighlight onPress={()=>this.props.par._loadGame(game)}>
+        <Text style={styles.menuItem}>
+          {t}
+        </Text>
+      </TouchableHighlight>
+    )
+  }
+  render() {
+    // dataSource = this.ds.cloneWithRows(this.props.games)
+    var window = this.state.layout
+    return(
+      <View style={styles.container} onLayout={event => this.appLayout(event.nativeEvent.layout)}>
+      <StatusBar hidden={true} />
+      <View style={styles.topBar}>
+        <TouchableHighlight onPress={()=>this.props.par._refreshGames()}>
+          <Text style={[styles.roomDescription]}>Refresh Game List</Text>
+        </TouchableHighlight>
+        <View style={{flexDirection: 'row'}}>
+        <Text style={[styles.roomDescription, {color:red}]}>
+          A
+        </Text>
+        <Text style={[styles.roomDescription, {color:green}]}>
+          V
+        </Text>
+        <Text style={[styles.roomDescription, {color:blue}]}>
+          E
+        </Text>
+        </View>
+      </View>
+      <View style={{flex: 1, paddingLeft: 5, paddingRight: 5}} >
+        <BannerImage par={this} lay={this.state.layout}/>
+        <View style={{height: this.state.land ? 0 : 20}} />
+        <View style={{flexDirection: 'row', justifyContent: 'flex-start'}}>
+        <Text style={[styles.roomDescription, {color:red}]}>
+          A
+        </Text>
+        <Text style={[styles.roomDescription, {color:green}]}>
+          V
+        </Text>
+        <Text style={[styles.roomDescription, {color:blue}]}>
+          E
+        </Text>
+        <Text style={styles.roomDescription}>
+          :
+        </Text>
+        <View style={{flexDirection: 'column'}}>
+        <Text style={[styles.roomDescription, {paddingBottom: 3}]}>
+        {(this.state.layout.width< 330) ? "Adventure! Villainy! \nExcitement!" : "Adventure! Villainy! Excitement!"}
+        </Text>
+        </View>
+        </View>
+        <Text style={[styles.roomDescription, {textAlign:'left', paddingBottom: 5}]}>
+          A text-based game engine written by Gin Grasso & Matthew Scroggs.
+        </Text>
+        <Text style={[styles.roomDescription, {textAlign:'right'}]}>
+          AVEgame.co.uk
+        </Text>
+        <Text style={[styles.roomDescription, {textAlign:'right'}]}>
+          github.com/AVEgame/AVE
+        </Text>
+        <View style={{height: 20}} />
+      </View>
+        {/* <ScrollView showsVerticalScrollIndicator={true} style={{flex: 0, height: this.state.land ? screenWidth/3 : screenHeight/3, backgroundColor: 'yellow'}}> */}
+        <View style={{flex: 0, height: this.state.land ? screenWidth/3 : screenHeight/3, backgroundColor: 'yellow'}}>
+          <FlatList
+            data={this.props.par.state.gameList}
+            renderItem={(game) => this.touchable(game.item)}
+            keyExtractor={(game) => game.filename}
+            // renderSeparator={(sectionId, rowId) => <View key={rowId} style={[styles.separator,{width: window.width - 20, marginLeft: 10}]}/>}
+          />
+          {/* </ScrollView> */}
+        </View>
+        </View>
+    )
+  }
+  appLayout(orient) {
+    this.setState({layout: orient, land: orient.width > orient.height });
   }
 }
 
@@ -313,95 +411,6 @@ class GameTitle extends Component {
   }
 }
 
-class MenuScreen extends Component {
-  constructor(props) {
-    super(props)
-    this.banner = <BannerImage par={this}/>
-    this.state = {layout: {}, land: false}
-  }
-  touchable(game) {
-    var t = game.title
-    return (
-      <TouchableHighlight onPress={()=>this.props.par._loadGame(game)}>
-        <Text style={styles.menuItem}>
-          {t}
-        </Text>
-      </TouchableHighlight>
-    )
-  }
-  render() {
-    // dataSource = this.ds.cloneWithRows(this.props.games)
-    var window = this.state.layout
-    return(
-      <View style={styles.container} onLayout={event => this.appLayout(event.nativeEvent.layout)}>
-      <StatusBar hidden={true} />
-      <View style={styles.topBar}>
-        <TouchableHighlight onPress={()=>this.props.par._refreshGames()}>
-          <Text style={[styles.roomDescription]}>Refresh Game List</Text>
-        </TouchableHighlight>
-        <View style={{flexDirection: 'row'}}>
-        <Text style={[styles.roomDescription, {color:red}]}>
-          A
-        </Text>
-        <Text style={[styles.roomDescription, {color:green}]}>
-          V
-        </Text>
-        <Text style={[styles.roomDescription, {color:blue}]}>
-          E
-        </Text>
-        </View>
-      </View>
-      <View style={{flex: 1, paddingLeft: 5, paddingRight: 5}} >
-        <BannerImage par={this} lay={this.state.layout}/>
-        <View style={{height: this.state.land ? 0 : 20}} />
-        <View style={{flexDirection: 'row', justifyContent: 'flex-start'}}>
-        <Text style={[styles.roomDescription, {color:red}]}>
-          A
-        </Text>
-        <Text style={[styles.roomDescription, {color:green}]}>
-          V
-        </Text>
-        <Text style={[styles.roomDescription, {color:blue}]}>
-          E
-        </Text>
-        <Text style={styles.roomDescription}>
-          :
-        </Text>
-        <View style={{flexDirection: 'column'}}>
-        <Text style={[styles.roomDescription, {paddingBottom: 3}]}>
-        {(this.state.layout.width< 330) ? "Adventure! Villainy! \nExcitement!" : "Adventure! Villainy! Excitement!"}
-        </Text>
-        </View>
-        </View>
-        <Text style={[styles.roomDescription, {textAlign:'left', paddingBottom: 5}]}>
-          A text-based game engine written by Gin Grasso & Matthew Scroggs.
-        </Text>
-        <Text style={[styles.roomDescription, {textAlign:'right'}]}>
-          AVEgame.co.uk
-        </Text>
-        <Text style={[styles.roomDescription, {textAlign:'right'}]}>
-          github.com/AVEgame/AVE
-        </Text>
-        <View style={{height: 20}} />
-      </View>
-        {/* <ScrollView showsVerticalScrollIndicator={true} style={{flex: 0, height: this.state.land ? screenWidth/3 : screenHeight/3, backgroundColor: 'yellow'}}> */}
-        <View style={{flex: 0, height: this.state.land ? screenWidth/3 : screenHeight/3, backgroundColor: 'yellow'}}>
-          <FlatList
-            data={this.props.par.state.gameList}
-            renderItem={(game) => this.touchable(game.item)}
-            keyExtractor={(game) => game.filename}
-            // renderSeparator={(sectionId, rowId) => <View key={rowId} style={[styles.separator,{width: window.width - 20, marginLeft: 10}]}/>}
-          />
-          {/* </ScrollView> */}
-        </View>
-        </View>
-    )
-  }
-  appLayout(orient) {
-    this.setState({layout: orient, land: orient.width > orient.height });
-  }
-}
-
 class BannerImage extends Component {
   constructor(props) {
     super(props)
@@ -462,6 +471,39 @@ class GameOver extends Component {
   }
   appLayout(orient) {
     this.setState({layout: orient})
+  }
+}
+
+class ErrorView extends Component {
+  constructor(props) {
+    super(props)
+  }
+  render() {
+    return (
+      <View style={styles.container} onLayout={event => this.appLayout(event.nativeEvent.layout)}>
+        <View style={styles.titleContParent}>
+          <View style={styles.titleCont}>
+            <Text style={styles.gameTitle}>
+              ERROR
+            </Text>
+          </View>
+          <View style={{flexDirection: "row", padding: 10}}>
+            <Text style={styles.gameDesc}>
+              Error communicating with https://avegame.co.uk. Check your connection.
+            </Text>
+          </View>
+        </View>
+      {/* <TopBar par={this.props.par} /> */}
+        <StatusBar hidden={true} />
+        <View style={styles.gameOverMenu}>
+          <TouchableHighlight onPress={()=>this.props.par._startAgain()}>
+            <Text style={styles.menuItem}>
+              Try again
+            </Text>
+          </TouchableHighlight>
+        </View>
+      </View>
+    );
   }
 }
 
