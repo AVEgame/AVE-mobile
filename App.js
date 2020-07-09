@@ -198,7 +198,6 @@ class MenuScreen extends Component {
     )
   }
   render() {
-    // dataSource = this.ds.cloneWithRows(this.props.games)
     var window = this.state.layout
     return(
       <View style={styles.container} onLayout={event => this.appLayout(event.nativeEvent.layout)}>
@@ -280,8 +279,8 @@ class RoomView extends Component {
     var scrollHeight = (window.width > window.height) ? scrollHeightLand : scrollHeightPort
     return(
       <View style={styles.container} onLayout={event => this.appLayout(event.nativeEvent.layout)}>
-      <StatusBar hidden={true} />
-      {/* <TopBar  par={this.props.par} /> */}
+        <StatusBar hidden={true} />
+        <TopBar  par={this.props.par} />
         <View style={[styles.roomInvCont,{height:window.height - 20 - scrollHeight - 5}]}>
           <View style={styles.roomDescriptionCont}>
             <ScrollView showsVerticalScrollIndicator={true}>
@@ -373,7 +372,7 @@ class GameTitle extends Component {
     var window = Dimensions.get('window');
     return(
     <View onLayout={event => this.appLayout(event.nativeEvent.layout)} style={styles.container}>
-    {/* <TopBar par={this.props.par} /> */}
+    <TopBar par={this.props.par} />
     <StatusBar hidden={true} />
     <View style={styles.titleContParent}>
       <View style={styles.titleCont}>
@@ -451,7 +450,7 @@ class GameOver extends Component {
     var window = Dimensions.get('window');
     return(
       <View style={styles.container} onLayout={event => this.appLayout(event.nativeEvent.layout)}>
-      {/* <TopBar par={this.props.par} /> */}
+      <TopBar par={this.props.par} />
       <StatusBar hidden={true} />
         <View style={styles.gameOver}>
           <View style={styles.gameOverTextCont}>
@@ -486,6 +485,7 @@ class ErrorView extends Component {
   render() {
     return (
       <View style={styles.container}>
+        <TopBar par={this.props.par} />
         <View style={styles.titleContParent}>
           <View style={styles.titleCont}>
             <Text style={styles.gameTitle}>
@@ -509,6 +509,34 @@ class ErrorView extends Component {
         </View>
       </View>
     );
+  }
+}
+
+class TopBar extends Component {
+  constructor(props) {
+    super(props)
+  }
+  render() {
+    return (
+      <View style={styles.topBar}>
+      <TouchableHighlight onPress={()=>{this.props.par._startAgain()}}>
+        <Text style={[styles.roomDescription]}>
+        Main Menu
+        </Text>
+      </TouchableHighlight>
+      <View style={{flexDirection: 'row'}}>
+      <Text style={[styles.roomDescription, {color:red}]}>
+        A
+      </Text>
+      <Text style={[styles.roomDescription, {color:green}]}>
+        V
+      </Text>
+      <Text style={[styles.roomDescription, {color:blue}]}>
+        E
+      </Text>
+      </View>
+      </View>
+    )
   }
 }
 
