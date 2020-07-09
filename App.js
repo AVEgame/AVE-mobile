@@ -1,12 +1,11 @@
 import { StatusBar } from 'expo-status-bar';
+import { registerRootComponent } from 'expo';
 import React, {Component} from 'react';
 import {
-  AppRegistry,
   StyleSheet,
   Text,
   View,
   TouchableHighlight,
-  AsyncStorage,
   Platform,
   Image,
   Dimensions,
@@ -27,6 +26,8 @@ const screenWidth = Math.min(dim.height, dim.width)
 
 const scrollHeightPort = 150
 const scrollHeightLand = 130
+
+const BaseUrl = "https://avegame.co.uk/"
 
 
 export default class AVEmobile extends Component {
@@ -94,7 +95,7 @@ export default class AVEmobile extends Component {
         this.setState({displayType: "error"})
       }
     }
-    request.open('GET', 'https://www.avegame.co.uk/gamelist.json');
+    request.open('GET', BaseUrl + 'gamelist.json');
     request.send();
   }
   _loadGame(game) {
@@ -111,6 +112,7 @@ export default class AVEmobile extends Component {
       roomDesc: "",
       inventoryText: "",
     });
+    this._refreshGames();
   }
   _startGame() {
     this._getRoom(null);
@@ -123,7 +125,7 @@ export default class AVEmobile extends Component {
       option: option,
     };
     var request = new XMLHttpRequest();
-    var url = 'https://www.avegame.co.uk/play/';
+    var url = BaseUrl + 'play/';
     if (this.state.gameData.user) {
       url += "user/";
     }
@@ -480,7 +482,7 @@ class ErrorView extends Component {
   }
   render() {
     return (
-      <View style={styles.container} onLayout={event => this.appLayout(event.nativeEvent.layout)}>
+      <View style={styles.container}>
         <View style={styles.titleContParent}>
           <View style={styles.titleCont}>
             <Text style={styles.gameTitle}>
@@ -632,4 +634,4 @@ const styles = StyleSheet.create({
   }
 });
 
-AppRegistry.registerComponent('AVEmobile', () => AVEmobile);
+registerRootComponent(AVEmobile);
