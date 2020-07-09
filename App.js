@@ -86,6 +86,9 @@ export default class AVEmobile extends Component {
         var gameList = Array()
         for (var i=0; i<gameListFull.length; i++) {
           if (gameListFull[i].active) {
+            if (!gameListFull[i].user) {
+              gameListFull[i].title = '\u{2605} ' + gameListFull[i].title;
+            }
             gameList.push(gameListFull[i]);
           }
         }
